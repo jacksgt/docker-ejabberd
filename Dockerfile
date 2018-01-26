@@ -1,7 +1,7 @@
 FROM debian:sid
 MAINTAINER Rafael Römhild <rafael@roemhild.de>
 
-ENV EJABBERD_BRANCH=18.1.0 \
+ENV EJABBERD_BRANCH=18.01-1 \
     EJABBERD_USER=ejabberd \
     EJABBERD_HTTPS=true \
     EJABBERD_STARTTLS=true \
@@ -27,7 +27,7 @@ RUN groupadd -r $EJABBERD_USER \
 RUN set -x \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
-    ejabberd ejabberd-contrib \
+    ejabberd=$EJABBERD_BRANCH ejabberd-contrib \
     locales ldnsutils python2.7 python-jinja2 ca-certificates libyaml-0-2 \
     python-mysqldb imagemagick libgd3 libwebp6 wget \
     dirmngr gpg gpg-agent \
