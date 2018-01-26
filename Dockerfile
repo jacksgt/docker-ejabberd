@@ -1,7 +1,7 @@
-FROM debian:jessie
+FROM debian:sid
 MAINTAINER Rafael Römhild <rafael@roemhild.de>
 
-ENV EJABBERD_BRANCH=17.09 \
+ENV EJABBERD_BRANCH=18.1.0 \
     EJABBERD_USER=ejabberd \
     EJABBERD_HTTPS=true \
     EJABBERD_STARTTLS=true \
@@ -25,59 +25,12 @@ RUN groupadd -r $EJABBERD_USER \
 
 # Install packages and perform cleanup
 RUN set -x \
-    && buildDeps=' \
-        git-core \
-        build-essential \
-        automake \
-        libssl-dev \
-        zlib1g-dev \
-        libexpat-dev \
-        libyaml-dev \
-        libsqlite3-dev \
-        erlang-src erlang-dev \
-        libgd-dev \
-        libwebp-dev \
-    ' \
-    && requiredAptPackages=' \
-        wget \
-        locales \
-        ldnsutils \
-        python2.7 \
-        python-jinja2 \
-        ca-certificates \
-        libyaml-0-2 \
-        erlang-base erlang-snmp erlang-ssl erlang-ssh erlang-webtool \
-        erlang-tools erlang-xmerl erlang-corba erlang-diameter erlang-eldap \
-        erlang-eunit erlang-ic erlang-odbc erlang-os-mon \
-        erlang-parsetools erlang-percept erlang-typer \
-        python-mysqldb \
-        imagemagick \
-        libgd3 \
-        libwebp5 \
-    ' \
-    && echo "deb http://packages.erlang-solutions.com/debian wheezy contrib" >> /etc/apt/sources.list \
-    && apt-key adv \
-        --keyserver keys.gnupg.net \
-        --recv-keys 434975BD900CCBE4F7EE1B1ED208507CA14F4FCA \
     && apt-get update \
-    && apt-get install -y $buildDeps $requiredAptPackages --no-install-recommends \
-    && dpkg-reconfigure locales && \
-        locale-gen C.UTF-8 \
-    && /usr/sbin/update-locale LANG=C.UTF-8 \
-    && echo 'en_US.UTF-8 UTF-8' >> /etc/locale.gen \
-    && locale-gen \
-    && cd /tmp \
-    && git clone https://github.com/processone/ejabberd.git \
-        --branch $EJABBERD_BRANCH --single-branch --depth=1 \
-    && cd ejabberd \
-    && chmod +x ./autogen.sh \
-    && ./autogen.sh \
-    && ./configure --enable-user=$EJABBERD_USER \
-        --enable-all \
-        --disable-tools \
-        --disable-pam \
-    && make debug=$EJABBERD_DEBUG_MODE \
-    && make install \
+    && apt-get install -y --no-install-recommends \
+    ejabberd ejabberd-contrib \
+    locales ldnsutils python2.7 python-jinja2 ca-certificates libyaml-0-2 \
+    python-mysqldb imagemagick libgd3 libwebp6 wget \
+    dirmngr gpg gpg-agent \
     && mkdir $EJABBERD_HOME/ssl \
     && mkdir $EJABBERD_HOME/conf \
     && mkdir $EJABBERD_HOME/backup \
@@ -91,8 +44,7 @@ RUN set -x \
     && rm -rf /usr/local/etc/ejabberd \
     && ln -sf $EJABBERD_HOME/conf /usr/local/etc/ejabberd \
     && chown -R $EJABBERD_USER: $EJABBERD_HOME \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get purge -y --auto-remove $buildDeps
+    && rm -rf /var/lib/apt/lists/*
 
 RUN wget -P /usr/local/share/ca-certificates/cacert.org http://www.cacert.org/certs/root.crt http://www.cacert.org/certs/class3.crt; \
     update-ca-certificates
@@ -105,7 +57,7 @@ RUN set -ex; \
     \
 # verify the signature
     export GNUPGHOME="$(mktemp -d)"; \
-    gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4; \
+    gpg --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4; \
     gpg --batch --verify /usr/bin/gosu.asc /usr/bin/gosu; \
     rm -r "$GNUPGHOME" /usr/bin/gosu.asc; \
     \
@@ -124,7 +76,7 @@ ADD ./run.sh /sbin/run
 ADD ./scripts $EJABBERD_HOME/scripts
 ADD https://raw.githubusercontent.com/rankenstein/ejabberd-auth-mysql/master/auth_mysql.py $EJABBERD_HOME/scripts/lib/auth_mysql.py
 RUN chmod a+rx $EJABBERD_HOME/scripts/lib/auth_mysql.py
-RUN chmod +x /usr/local/lib/eimp*/priv/bin/eimp
+RUN chmod +x /usr/lib/eimp*/priv/bin/eimp || true
 
 # Add config templates
 ADD ./conf /opt/ejabberd/conf
