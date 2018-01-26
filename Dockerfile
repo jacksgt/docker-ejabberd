@@ -1,7 +1,7 @@
-FROM debian:jessie
+FROM debian:sid
 MAINTAINER Rafael Römhild <rafael@roemhild.de>
 
-ENV EJABBERD_BRANCH=17.09 \
+ENV EJABBERD_BRANCH=18.1.0 \
     EJABBERD_USER=ejabberd \
     EJABBERD_HTTPS=true \
     EJABBERD_STARTTLS=true \
@@ -40,25 +40,52 @@ RUN set -x \
     ' \
     && requiredAptPackages=' \
         wget \
+        dirmngr \
+        gpg-agent \
         locales \
         ldnsutils \
         python2.7 \
         python-jinja2 \
         ca-certificates \
         libyaml-0-2 \
-        erlang-base erlang-snmp erlang-ssl erlang-ssh erlang-webtool \
-        erlang-tools erlang-xmerl erlang-corba erlang-diameter erlang-eldap \
-        erlang-eunit erlang-ic erlang-odbc erlang-os-mon \
-        erlang-parsetools erlang-percept erlang-typer \
+        rebar \
+        erlang-asn1 \
+        erlang-base \
+        erlang-crypto \
+        erlang-dev \
+        erlang-eunit \
+        erlang-fs-listener \
+        erlang-inets \
+        erlang-jiffy \
+        erlang-jose \
+        erlang-lager \
+        erlang-mnesia \
+        erlang-p1-cache-tab \
+        erlang-p1-eimp \
+        erlang-p1-iconv \
+        erlang-p1-mysql \
+        erlang-p1-oauth2 \
+        erlang-p1-pam \
+        erlang-p1-pgsql \
+        erlang-p1-sip \
+        erlang-p1-sqlite3 \
+        erlang-p1-stringprep \
+        erlang-p1-stun \
+        erlang-p1-tls \
+        erlang-p1-utils \
+        erlang-p1-xml \
+        erlang-p1-xmpp \
+        erlang-p1-yaml \
+        erlang-p1-zlib \
+        erlang-parsetools \
+        erlang-redis-client \
+        erlang-ssl \
+        erlang-xmerl \
         python-mysqldb \
         imagemagick \
         libgd3 \
-        libwebp5 \
+        libwebp6 \
     ' \
-    && echo "deb http://packages.erlang-solutions.com/debian wheezy contrib" >> /etc/apt/sources.list \
-    && apt-key adv \
-        --keyserver keys.gnupg.net \
-        --recv-keys 434975BD900CCBE4F7EE1B1ED208507CA14F4FCA \
     && apt-get update \
     && apt-get install -y $buildDeps $requiredAptPackages --no-install-recommends \
     && dpkg-reconfigure locales && \
