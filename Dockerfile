@@ -1,7 +1,7 @@
 FROM debian:sid
 MAINTAINER Rafael Römhild <rafael@roemhild.de>
 
-ENV EJABBERD_BRANCH=18.01-1 \
+ENV EJABBERD_BRANCH=18.03-2 \
     EJABBERD_USER=ejabberd \
     EJABBERD_HTTPS=true \
     EJABBERD_STARTTLS=true \
@@ -30,7 +30,7 @@ RUN set -x \
     ejabberd=$EJABBERD_BRANCH ejabberd-contrib \
     locales ldnsutils python2.7 python-jinja2 ca-certificates libyaml-0-2 \
     python-mysqldb imagemagick libgd3 libwebp6 wget \
-    dirmngr gpg gpg-agent \
+    dirmngr gpg gpg-agent inotify-tools \
     && mkdir $EJABBERD_HOME/ssl \
     && mkdir $EJABBERD_HOME/conf \
     && mkdir $EJABBERD_HOME/backup \
@@ -57,9 +57,9 @@ RUN set -ex; \
     \
 # verify the signature
     export GNUPGHOME="$(mktemp -d)"; \
-    gpg --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4; \
+    gpg --keyserver hkp://pgp.mit.edu --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4; \
     gpg --batch --verify /usr/bin/gosu.asc /usr/bin/gosu; \
-    rm -r "$GNUPGHOME" /usr/bin/gosu.asc; \
+    rm -rf "$GNUPGHOME" /usr/bin/gosu.asc; \
     \
     chmod +sx /usr/bin/gosu; \
     gosu nobody true;
