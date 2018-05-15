@@ -1,7 +1,7 @@
 FROM debian:sid
 MAINTAINER Rafael Römhild <rafael@roemhild.de>
 
-ENV EJABBERD_BRANCH=18.03-2 \
+ENV EJABBERD_BRANCH=18.04-2 \
     EJABBERD_USER=ejabberd \
     EJABBERD_HTTPS=true \
     EJABBERD_STARTTLS=true \
