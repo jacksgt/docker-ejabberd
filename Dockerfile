@@ -30,7 +30,7 @@ RUN set -x \
     ejabberd=$EJABBERD_BRANCH ejabberd-contrib \
     locales ldnsutils python2.7 python-jinja2 ca-certificates libyaml-0-2 \
     python-mysqldb imagemagick libgd3 libwebp6 wget \
-    dirmngr gpg gpg-agent inotify-tools \
+    dirmngr gpg gpg-agent inotify-tools gosu \
     && mkdir $EJABBERD_HOME/ssl \
     && mkdir $EJABBERD_HOME/conf \
     && mkdir $EJABBERD_HOME/backup \
@@ -45,24 +45,6 @@ RUN set -x \
     && ln -sf $EJABBERD_HOME/conf /usr/local/etc/ejabberd \
     && chown -R $EJABBERD_USER: $EJABBERD_HOME \
     && rm -rf /var/lib/apt/lists/*
-
-RUN wget -P /usr/local/share/ca-certificates/cacert.org http://www.cacert.org/certs/root.crt http://www.cacert.org/certs/class3.crt; \
-    update-ca-certificates
-
-ENV GOSU_VERSION 1.10
-RUN set -ex; \
-    dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')"; \
-    wget -O /usr/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch"; \
-    wget -O /usr/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc"; \
-    \
-# verify the signature
-    export GNUPGHOME="$(mktemp -d)"; \
-    gpg --keyserver hkp://pgp.mit.edu --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4; \
-    gpg --batch --verify /usr/bin/gosu.asc /usr/bin/gosu; \
-    rm -rf "$GNUPGHOME" /usr/bin/gosu.asc; \
-    \
-    chmod +sx /usr/bin/gosu; \
-    gosu nobody true;
 
 # Create logging directories
 RUN mkdir -p /var/log/ejabberd
@@ -91,4 +73,4 @@ VOLUME ["$EJABBERD_HOME/database", "$EJABBERD_HOME/ssl", "$EJABBERD_HOME/backup"
 EXPOSE 4560 5222 5269 5280 5443
 
 CMD ["start"]
-ENTRYPOINT ["run"]
+ENTRYPOINT ["/sbin/run"]
